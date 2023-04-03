@@ -38,8 +38,6 @@ export class UsersController {
      */
     @ApiOperation({summary: 'Выдать роль'})
     @ApiResponse({status: 200})
-    @Roles('ADMIN')
-    @UseGuards(RolesGuard)
     @Post('/role')
     addRole(@Body() dto: AddRoleDto) {
         return this.usersService.addRole(dto);

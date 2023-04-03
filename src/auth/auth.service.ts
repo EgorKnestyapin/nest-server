@@ -17,7 +17,7 @@ export class AuthService {
                 private profileService: ProfilesService) {}
     
     /**
-     * Производит авторизацию пользовател
+     * Производит авторизацию пользователя
      * 
      * @param userDto Дто пользователя
      * @returns Токен авторизованного пользователя

@@ -6,6 +6,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { CreateUserProfileDto } from './dto/create-userProfile.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Profile } from './profiles.model';
+import { ProfilesGuard } from 'src/auth/profile-auth.guard';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -47,7 +48,7 @@ export class ProfilesController {
     @ApiOperation({summary: 'Обновить информацию о пользователе и его профиль'})
     @ApiResponse({status: 200})
     @Roles('ADMIN')
-    @UseGuards(RolesGuard)
+    @UseGuards(ProfilesGuard)
     @Put('/:id')
     updateUserProfile(@Param('id') profileId: number, @Body() profileDto: CreateUserProfileDto) {
        return this.profileService.updateUserProfile(profileId, profileDto); 
@@ -62,7 +63,7 @@ export class ProfilesController {
     @ApiOperation({summary: 'Удалить пользователя и его профиль'})
     @ApiResponse({status: 200})
     @Roles('ADMIN')
-    @UseGuards(RolesGuard)
+    @UseGuards(ProfilesGuard)
     @Delete('/:id')
     deleteUserProfile(@Param('id') profileId: number) {
         return this.profileService.deleteUserProfile(profileId);
