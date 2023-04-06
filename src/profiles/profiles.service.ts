@@ -2,9 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Profile } from './profiles.model';
 import { CreateUserProfileDto } from './dto/create-userProfile.dto';
-import { CreateProfileDto } from './dto/create-profile.dto';
 import { User } from 'src/users/users.model';
-import { where } from 'sequelize';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
 
@@ -38,7 +36,7 @@ export class ProfilesService {
      * @returns Массив объектов профиля
      */
     async getAllProfiles() {
-        return this.profileRepository.findAll({include: {all: true}})
+        return await this.profileRepository.findAll({include: {all: true}})
     }
 
     /**
@@ -48,7 +46,7 @@ export class ProfilesService {
      * @returns Объект профиля
      */
     async getProfileById(profileId: number) {
-        return this.profileRepository.findOne({where: {id: profileId}, include: {all: true}})
+        return await this.profileRepository.findOne({where: {id: profileId}, include: {all: true}})
     }
 
     /**
@@ -59,20 +57,21 @@ export class ProfilesService {
      * @returns Обновленный объект профиля
      */
     async updateUserProfile(profileId: number, dto: CreateUserProfileDto) {
-        try {
-            const profile = await this.profileRepository.findOne({where: {id: profileId}});
-            await this.profileRepository.update({name: dto.name, surname: dto.surname, phoneNumber: dto.phoneNumber}, 
-                {where: {id: profileId}});
+        const profile = await this.profileRepository.findOne({where: {id: profileId}});
+        await this.profileRepository.update({name: dto.name, surname: dto.surname, phoneNumber: dto.phoneNumber}, 
+                                            {where: {id: profileId}});
+        const user = await this.userService.getUsersByEmail(dto.email);
+        if (!user) {
             if (dto.password) {
                 const hashPassword = await bcrypt.hash(dto.password, 5);
                 await this.userRepository.update({email: dto.email, password: hashPassword}, {where: {id: profile.userId}});
             } else {
                 await this.userRepository.update({...dto}, {where: {id: profile.userId}});
             }
-            return this.profileRepository.findOne({where: {id: profileId}, include: {all: true}});
-        } catch (error) {
-            throw new Error(error.message);
+        } else {
+            throw new HttpException('Пользователь с таким email уже существует', HttpStatus.BAD_REQUEST);
         }
+        return this.profileRepository.findOne({where: {id: profileId}, include: {all: true}});
     }
 
     /**

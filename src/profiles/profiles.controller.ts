@@ -1,12 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put, UseGuards, UsePipes } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { Roles } from 'src/auth/roles-auth.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles-auth.decorator';  
 import { CreateUserProfileDto } from './dto/create-userProfile.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Profile } from './profiles.model';
 import { ProfilesGuard } from 'src/auth/profile-auth.guard';
+import { ValidationPipe } from 'src/pipes/validation.pipe';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -47,6 +46,7 @@ export class ProfilesController {
      */
     @ApiOperation({summary: 'Обновить информацию о пользователе и его профиль'})
     @ApiResponse({status: 200})
+    @UsePipes(ValidationPipe)
     @Roles('ADMIN')
     @UseGuards(ProfilesGuard)
     @Put('/:id')
